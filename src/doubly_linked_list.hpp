@@ -11,14 +11,13 @@ namespace detail
     struct Node 
     {
         T _key;
-        std::shared_ptr<T> _next;
-        std::shared_ptr<T> _prev;
+        Node<T>* _next{nullptr};
+        Node<T>* _prev{nullptr};
         Node(T key)
             : _key(std::move(key))
         {}
     };
 } // namespace detail
-
 
 
 template <typename T>
@@ -38,23 +37,37 @@ public:
 
     Node_t* search(T key) noexcept
     {
-        Node_t* temp = _head;
-        while(temp != nullptr && temp->_data != key) {
-            temp = temp->next;
-        }
-        return temp;
+        return _do_search(key);
     }
 
     void push_front(T key) noexcept
     {
-        std::unique_ptr<T> newNode = std::make_unique<Node_t>(std::move(key));
-        if(_head != nullptr) {
-            Node_t* temp = _head;
-            _head = std::move(newNode);
-            _head->next = temp;
-            temp->_prev = _head;
+        Node_t* newNode = new Node_t(std::move(key));
+        newNode->_next = _head;
+        if (_head != nullptr) {
+            _head->_prev = newNode;
+        }
+        _head = newNode;
+    }
+
+
+    void remove(T key) noexcept
+    {
+        Node_t* node = _do_search(key);
+
+        if (node == nullptr) {
+            std::cout << "null\n";
+            return;
+        }
+        if (node == _head) {
+            _head = node->_next;
+            _head->_prev = nullptr;
+        } else if(node->_next == nullptr) {
+            node->_prev->_next = nullptr;
         } else {
-            _head = std::move(newNode);
+            node->_prev->_next = node->_next;
+            node->_next->_prev = node->_prev;
+            delete node;
         }
     }
 
@@ -64,11 +77,24 @@ public:
         std::cout << "-------------------------------------------\n";
         while(temp != nullptr) {
             std::cout << temp->_key << " ";
+            temp = temp->_next;
         }
-        std::cout << "-------------------------------------------\n";
+        std::cout << "\n-------------------------------------------\n";
     }
 
 private:    
+
+    Node_t* _do_search(T key) noexcept 
+    {
+        Node_t* temp = _head;
+    
+        while ( temp != nullptr ) {
+            if ( temp->_key == key ) return temp;
+            temp = temp->_next;
+        }   
+        return temp;
+    }
+
     Node_t* _head;
 };
 

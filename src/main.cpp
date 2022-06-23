@@ -5,6 +5,18 @@
 int main()
 {
     exo::DoublyLinkedList<int> ds;
-    ds.push_front(100);
+
+    // push node
+    for(std::size_t i = 0; i < 10; i++){
+        ds.push_front(i*5);
+    }
     ds.print();
+
+    // delete node
+    // ds.remove(0);
+    ds.remove(45);
+    ds.remove(50);
+    // ds.remove(20);
+    ds.print();
+
 }
