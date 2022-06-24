@@ -1,7 +1,13 @@
 #ifndef DOUBLY_LINKED_LIST_HPP
 #define DOUBLY_LINKED_LIST_HPP
 
-#include <memory>
+#include <list>
+
+/**
+ * TODO: add iterator capability
+ * 
+ */
+
 
 namespace exo
 {
@@ -26,14 +32,43 @@ class DoublyLinkedList
     using Node_t = detail::Node<T>;
 public:
     DoublyLinkedList()
-        :_head(nullptr)
+        : _head(nullptr)
+        , _tail(nullptr)
     {}
 
     ~DoublyLinkedList()
-    {}
+    {
+        while(_head != nullptr) 
+        {
+            Node_t* dTemp = _head;
+            _head = _head->_next;
+            delete dTemp;
+        }
+        _tail = nullptr;
+    }
 
-    DoublyLinkedList(const DoublyLinkedList&) = delete;
-    DoublyLinkedList& operator= (const DoublyLinkedList&) = delete;
+    DoublyLinkedList(const DoublyLinkedList& rhs)
+        : _head(nullptr) 
+          _tail(nullptr)
+    {
+        Node_t* temp = rhs._head;
+
+        while(temp != nullptr) {
+            push_front(temp->_key);
+            temp = temp->_next;
+        }  
+    }
+
+    DoublyLinkedList& operator= (const DoublyLinkedList& rhs)
+    {
+        Node_t* temp = rhs._head;
+
+        while(temp != nullptr) {
+            push_front(temp->_key);
+            temp = temp->_next;
+        }  
+        return *this;
+    }
 
     Node_t* search(T key) noexcept
     {
@@ -50,15 +85,21 @@ public:
         _head = newNode;
     }
 
+    void push_back(T key) noexcept
+    {
+        Node_t* newNode = new Node_t(std::move(key));
+        std::list
+        while()
+
+    }
+
 
     void remove(T key) noexcept
     {
         Node_t* node = _do_search(key);
 
-        if (node == nullptr) {
-            std::cout << "null\n";
-            return;
-        }
+        if (node == nullptr) return;
+
         if (node == _head) {
             _head = node->_next;
             _head->_prev = nullptr;
@@ -96,6 +137,7 @@ private:
     }
 
     Node_t* _head;
+    Node_t* _tail;
 };
 
 
