@@ -34,4 +34,15 @@ int main()
     ds.print();
 
 
+    /*move ctor*/
+    std::cout << "\n\n******move ctor********\n";
+    exo::DoublyLinkedList<int> ds3 (std::move(ds));
+    ds3.print();
+    ds.print();
+
+    /*move assignment*/
+    std::cout << "\n\n******move assignment********\n";
+    exo::DoublyLinkedList<int> ds4  = std::move(ds2);
+    ds3.print();
+    ds2.print();
 }

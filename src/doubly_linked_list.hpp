@@ -38,13 +38,7 @@ public:
 
     ~DoublyLinkedList()
     {
-        while(_head != nullptr) 
-        {
-            Node_t* dTemp = _head;
-            _head = _head->_next;
-            delete dTemp;
-        }
-        _tail = nullptr;
+        _remove_all_element();
     }
 
     DoublyLinkedList(const DoublyLinkedList& rhs)
@@ -61,12 +55,34 @@ public:
 
     DoublyLinkedList& operator= (const DoublyLinkedList& rhs)
     {
-        Node_t* temp = rhs._head;
+        if (*this == rhs) return *this;
 
+        Node_t* temp = rhs._head;
         while(temp != nullptr) {
             push_back(temp->_key);
             temp = temp->_next;
         }  
+        return *this;
+    }
+
+    DoublyLinkedList(DoublyLinkedList&& rhs) noexcept 
+        : _head(rhs._head)
+        , _tail(rhs._tail)
+    {
+        rhs._tail = nullptr;
+        rhs._head = nullptr;
+    }
+
+    DoublyLinkedList& operator= (DoublyLinkedList&& rhs) noexcept
+    {
+        if (_head != nullptr) {
+            _remove_all_element();
+        }
+
+        _head = rhs._head;
+        _tail = rhs._tail;
+        rhs._head = nullptr;
+        rhs._tail = nullptr;
         return *this;
     }
 
@@ -141,6 +157,17 @@ private:
             temp = temp->_next;
         }   
         return temp;
+    }
+
+    void _remove_all_element() noexcept
+    {
+        while(_head != nullptr) 
+        {
+            Node_t* dTemp = _head;
+            _head = _head->_next;
+            delete dTemp;
+        }
+        _tail = nullptr;
     }
 
     Node_t* _head;
