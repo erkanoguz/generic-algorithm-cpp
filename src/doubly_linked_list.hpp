@@ -49,12 +49,12 @@ public:
 
     DoublyLinkedList(const DoublyLinkedList& rhs)
         : _head(nullptr) 
-          _tail(nullptr)
+        , _tail(nullptr)
     {
         Node_t* temp = rhs._head;
 
         while(temp != nullptr) {
-            push_front(temp->_key);
+            push_back(temp->_key);
             temp = temp->_next;
         }  
     }
@@ -64,7 +64,7 @@ public:
         Node_t* temp = rhs._head;
 
         while(temp != nullptr) {
-            push_front(temp->_key);
+            push_back(temp->_key);
             temp = temp->_next;
         }  
         return *this;
@@ -81,6 +81,8 @@ public:
         newNode->_next = _head;
         if (_head != nullptr) {
             _head->_prev = newNode;
+        } else {
+            _tail = newNode;
         }
         _head = newNode;
     }
@@ -88,11 +90,13 @@ public:
     void push_back(T key) noexcept
     {
         Node_t* newNode = new Node_t(std::move(key));
-        std::list
-        while()
-
+        if (_tail != nullptr) {
+            _tail->_next = newNode;
+        } else {
+            _head = newNode;
+        }
+        _tail = newNode;
     }
-
 
     void remove(T key) noexcept
     {
@@ -103,13 +107,16 @@ public:
         if (node == _head) {
             _head = node->_next;
             _head->_prev = nullptr;
+            if(node == _tail)  
+                _tail = nullptr;
         } else if(node->_next == nullptr) {
             node->_prev->_next = nullptr;
+            _tail = node->_prev;
         } else {
             node->_prev->_next = node->_next;
             node->_next->_prev = node->_prev;
-            delete node;
         }
+        delete node;
     }
 
     void print() noexcept
