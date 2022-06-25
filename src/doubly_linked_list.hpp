@@ -45,23 +45,14 @@ public:
         : _head(nullptr) 
         , _tail(nullptr)
     {
-        Node_t* temp = rhs._head;
-
-        while(temp != nullptr) {
-            push_back(temp->_key);
-            temp = temp->_next;
-        }  
+        _allocate_new_list(rhs); 
     }
 
     DoublyLinkedList& operator= (const DoublyLinkedList& rhs)
     {
         if (*this == rhs) return *this;
 
-        Node_t* temp = rhs._head;
-        while(temp != nullptr) {
-            push_back(temp->_key);
-            temp = temp->_next;
-        }  
+        _allocate_new_list(rhs);
         return *this;
     }
 
@@ -168,6 +159,15 @@ private:
             delete dTemp;
         }
         _tail = nullptr;
+    }
+
+    void _allocate_new_list(const DoublyLinkedList<T>& rhs) noexcept 
+    {
+        Node_t* temp = rhs._head;
+        while(temp != nullptr) {
+            push_back(temp->_key);
+            temp = temp->_next;
+        }  
     }
 
     Node_t* _head;

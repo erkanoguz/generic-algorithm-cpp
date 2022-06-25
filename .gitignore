@@ -1,0 +1,12 @@
+.vscode/
+.DS_Store
+bin/
+build/
+*.log
+*.o 
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Makefile
+cmake_install.cmake
+.vscode
