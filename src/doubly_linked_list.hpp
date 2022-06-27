@@ -132,7 +132,7 @@ public:
         std::swap(_tail, rhs._tail);
     }
 
-    bool empty() noexcept
+    [[nodiscard]] bool empty() const noexcept
     {
         if (_head == nullptr) return true;
 
