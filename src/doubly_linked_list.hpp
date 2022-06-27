@@ -126,6 +126,19 @@ public:
         delete node;
     }
 
+    void swap(DoublyLinkedList& rhs) noexcept 
+    {
+        std::swap(_head, rhs._head);
+        std::swap(_tail, rhs._tail);
+    }
+
+    bool empty() noexcept
+    {
+        if (_head == nullptr) return true;
+
+        return false;
+    }
+
     void print() noexcept
     {
         Node_t* temp = _head;
