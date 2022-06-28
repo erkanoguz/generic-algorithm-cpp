@@ -2,6 +2,7 @@
 #define DOUBLY_LINKED_LIST_HPP
 
 #include <list>
+#include <iostream>
 
 /**
  * TODO: add iterator capability
@@ -130,6 +131,11 @@ public:
     {
         std::swap(_head, rhs._head);
         std::swap(_tail, rhs._tail);
+    }
+
+    void clear() noexcept 
+    {
+        _remove_all_element();
     }
 
     [[nodiscard]] bool empty() const noexcept

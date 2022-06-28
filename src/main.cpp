@@ -46,4 +46,9 @@ int main()
     ds3.print();
     ds2.print();
 
+
+    /*clear list*/
+    std::cout << "\n\n******clear list********\n";
+    ds4.clear();
+    ds4.print();
 }
