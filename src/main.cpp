@@ -51,4 +51,18 @@ int main()
     std::cout << "\n\n******clear list********\n";
     ds4.clear();
     ds4.print();
+
+
+    /*Emplace back*/
+    std::cout << "\n\n******emplace back********\n";
+    exo::DoublyLinkedList<int> ds7;
+    ds7.emplace_back(1,2,3,4,54,-1);
+    ds7.print();
+
+    /*Emplace front*/
+    std::cout << "\n\n******emplace back********\n";
+    exo::DoublyLinkedList<int> ds8;
+    ds8.emplace_back(1,2,3,4,54,-1);
+    ds8.print();
+
 }

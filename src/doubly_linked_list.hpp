@@ -138,6 +138,18 @@ public:
         _remove_all_element();
     }
 
+    template<typename ...Args>
+    void emplace_back(Args&& ...args) noexcept 
+    {
+        (..., push_back(std::forward<Args>(args)));
+    }
+
+    template<typename ...Args>
+    void emplace_font(Args&& ...args) noexcept 
+    {
+        (push_front(std::forward<Args>(args)), ...);
+    }
+
     [[nodiscard]] bool empty() const noexcept
     {
         if (_head == nullptr) return true;
