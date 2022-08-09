@@ -19,11 +19,33 @@ namespace detail
     struct Node 
     {
         T _key;
-        Node<T>* _next{nullptr};
-        Node<T>* _prev{nullptr};
-        Node(T key)
-            : _key(std::move(key))
-        {}
+        Node<T>* _next;
+        Node<T>* _prev;
+
+        Node(const T& key)
+            : _key(key)
+        { 
+            this->init() 
+        }
+        
+        void hook(Node* const position) noexcept 
+        {
+            this->_next = position;
+            this->prev = position->_prev;
+            position->_prev->_next = this;   
+            position->_prev = this;
+        } 
+
+        void unhook() noexcept 
+        {
+            this->_prev->_next = this->_next;
+            this->_next->_prev = this->_prev;
+        }
+
+        void init() noexcept 
+        {
+            _next = _prev = this;
+        }
     };
 } // namespace detail
 
@@ -105,9 +127,6 @@ struct _ListConstIterator
     explicit _ListConstIterator(const detail::Node<_Tp>* node) noexcept
     : _node(node) { }
 
-    _ListConstIterator(const _ListConstIterator<T>& listIter) noexcept
-    : _node(listIter._node) { }
-
     reference operator*() const noexcept 
     {
         return _node->_key;
@@ -171,18 +190,18 @@ public:
     using reverse_iterator = std::reverse_iterator<iterator>;
 
     DoublyLinkedList()
-        : _head(nullptr)
-        , _tail(nullptr)
+        : _listPtr(nullptr)
+        , _nodeCount(0)
     {}
 
     ~DoublyLinkedList()
     {
-        _remove_all_element();
+        erase(begin(), end());;
     }
 
     DoublyLinkedList(const DoublyLinkedList& rhs)
-        : _head(nullptr) 
-        , _tail(nullptr)
+        : _listPtr(nullptr) 
+        , _nodeCount(0)
     {
         _allocate_new_list(rhs); 
     }
@@ -217,16 +236,16 @@ public:
     }
 
     // iterators
-    iterator begin() noexcept { return iterator(_head); }
-    const_iterator begin() const noexcept { return const_iterator(_head); }
-    iterator end() noexcept { return iterator(_tail); }
-    const_iterator end() const noexcept { return const_iterator(_tail); }
+    iterator begin() noexcept { return iterator(_listPtr->_next); }
+    const_iterator begin() const noexcept { return const_iterator(_listPtr->_next); }
+    iterator end() noexcept { return iterator(_listPtr); }
+    const_iterator end() const noexcept { return const_iterator(_listPtr); }
     reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
     reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
     const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(end()); }
     const_reverse_iterator rend() const noexcept { return const_reverse_iterator(begin()); }
-    const_iterator cbegin() const noexcept { return const_iterator(_head); }
-    const_iterator cend() const noexcept { return const_iterator(_tail); }
+    const_iterator cbegin() const noexcept { return const_iterator(_listPtr->_next); }
+    const_iterator cend() const noexcept { return const_iterator(_listPtr); }
     const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(end()); }
     const_reverse_iterator crend() const noexcept { return const_reverse_iterator(begin()); }
 
@@ -263,93 +282,77 @@ public:
         return *end();
     }
     
-
     // Modifiers
-    void push_front(const value_type& key) noexcept
+    void push_front(const value_type& key)
     {
-        newNode->_next = _head;
-        if (_head != nullptr) {
-            _head->_prev = newNode;
-        } else {
-            _tail = newNode;
-        }
-        _head = newNode;
+        _insert(begin(), key);
     }
 
-    Node_t* _create_node(const value_type& key) 
+    void push_front(value_type&& key) 
     {
-        Node_t* node = new Node_t(std::move(key));
-        return node;
+        _insert(begin(), std::move(key);)
     }
 
-    void _insert(Node_t* node, const value_type& key) noexcept
+    void push_back(const value_type& key) 
     {
-        Node_t* temp = _create_node(key);
-
-
-        _listPtr
+        _insert(end(), key);
     }
 
-    Node_t* search(T key) noexcept
+    void push_back(value_type&& key) 
     {
-        return _do_search(key);
+        _insert(end(), std::move(key));
     }
 
-    void push_back(T key) noexcept
+    template <typename ...Args>
+    void emplace_front(Args&& ...args) 
     {
-        Node_t* newNode = new Node_t(std::move(key));
-        if (_tail != nullptr) {
-            _tail->_next = newNode;
-        } else {
-            _head = newNode;
-        }
-        _tail = newNode;
+        (..., push_front(std::forward<Args>(args)))
     }
 
-    void remove(T key) noexcept
+    template <typename ...Args>
+    void emplace_back(Args&& ...args) 
     {
-        Node_t* node = _do_search(key);
-
-        if (node == nullptr) return;
-
-        if (node == _head) {
-            _head = node->_next;
-            _head->_prev = nullptr;
-            if(node == _tail)  
-                _tail = nullptr;
-        } else if(node->_next == nullptr) {
-            node->_prev->_next = nullptr;
-            _tail = node->_prev;
-        } else {
-            node->_prev->_next = node->_next;
-            node->_next->_prev = node->_prev;
-        }
-        delete node;
+        (..., push_back(std::forward<Args>(args)))
     }
 
-    void swap(DoublyLinkedList& rhs) noexcept 
+    void pop_front() noexcept 
     {
-        std::swap(_head, rhs._head);
-        std::swap(_tail, rhs._tail);
+        _erase(begin());
+    }
+
+    void pop_back() noexcept 
+    {
+        _erase(iterator(_listPtr->_prev));
+    }
+
+    iterator erase(const_iterator position) noexcept 
+    {
+        iterator ret = iterator(position._node->_next);
+        _erase(position);
+        return ret;
+    }    
+
+    iterator erase(const_iterator first, const_iterator last) noexcept 
+    {
+        while (first != last) 
+            first = erase(first);
+
+        return iterator(last._node);
     }
 
     void clear() noexcept 
     {
-        _remove_all_element();
+        erase(begin(), end());
+        _init();
     }
 
-    template<typename ...Args>
-    void emplace_back(Args&& ...args) noexcept 
+    void swap(DoublyLinkedList& rhs) noexcept 
     {
-        (..., push_back(std::forward<Args>(args)));
+        std::swap(_listPtr, rhs._listPtr);
+        std::size_t temp = _nodeCount;
+        this->_nodeCount = rhs._nodeCount;
+        rhs._nodeCount = temp;
     }
-
-    template<typename ...Args>
-    void emplace_font(Args&& ...args) noexcept 
-    {
-        (push_front(std::forward<Args>(args)), ...);
-    }
-
 
     void print() noexcept
     {
@@ -364,41 +367,56 @@ public:
 
 private:    
 
-    Node_t* _do_search(T key) noexcept 
+    template <typename _Tp>
+    void _insert(iterator position, _Tp&& key) noexcept
     {
-        Node_t* temp = _head;
-    
-        while ( temp != nullptr ) {
-            if ( temp->_key == key ) return temp;
-            temp = temp->_next;
-        }   
-        return temp;
+        Node_t* temp = _create_node(std::forward<_Tp>(key));
+        temp->hook(position._node);
+        _increase_size(1);
     }
 
-    void _remove_all_element() noexcept
+    void _erase(iterator position) 
     {
-        while(_head != nullptr) 
-        {
-            Node_t* dTemp = _head;
-            _head = _head->_next;
-            delete dTemp;
-        }
-        _tail = nullptr;
+        position._node->unhook();
+        _delete_node(position._node)
+        _decrease_size(1);
+    }
+ 
+    Node_t* _create_node(const value_type& key) 
+    {
+        Node_t* node = new Node_t(key);
+        return node;
     }
 
-    void _allocate_new_list(const DoublyLinkedList<T>& rhs) noexcept 
+    Node_t* _create_node(const value_type&& key) 
     {
-        Node_t* temp = rhs._head;
-        while(temp != nullptr) {
-            push_back(temp->_key);
-            temp = temp->_next;
-        }  
+        Node_t* node = new Node_t(std::move(key));
+        return node;
     }
 
-    Node_t* _head;
-    Node_t* _tail;
+    void _delete_node(Node_t* node) 
+    {
+        delete node;
+    }
+
+    void _increase_size(std::size_t n) 
+    {
+        _nodeCount += n;
+    }
+
+    void _decrease_size(std::size_t n) 
+    {
+        _nodeCount -= n;
+    }
+
+    void _init() noexcept 
+    {
+        _nodeCount = 0;
+        _listPtr->init();
+    }
 
     Node_t* _listPtr;
+    std::size_t _nodeCount;
 };
 
 } // namepscae exo
