@@ -3,13 +3,6 @@
 
 #include <list>
 #include <iostream>
-#include <vector>
-
-/**
- * TODO: add iterator capability
- * 
- */
-
 
 namespace exo
 {
@@ -25,7 +18,7 @@ namespace detail
         Node(const T& key)
             : _key(key)
         { 
-            this->init() 
+            this->init();
         }
         
         void hook(Node* const position) noexcept 
@@ -122,10 +115,22 @@ struct _ListConstIterator
     using pointer  = _Tp*;
     using reference = _Tp&;  
 
+    using iterator = _ListIterator<_Tp>;
+
     _ListConstIterator() noexcept { }
 
     explicit _ListConstIterator(const detail::Node<_Tp>* node) noexcept
-    : _node(node) { }
+    : _node(node) 
+    {}
+
+    _ListConstIterator(const iterator& it) noexcept 
+    : _node(it._node)
+    {}
+
+    iterator _const_cast() const noexcept 
+    {
+        return iterator(const_cast<detail::Node<_Tp>*>(_node));
+    }
 
     reference operator*() const noexcept 
     {
@@ -137,46 +142,44 @@ struct _ListConstIterator
         return &_node->key;
     }
 
-    _ListIterator<_Tp>& operator++() noexcept 
+    _ListConstIterator<_Tp>& operator++() noexcept 
     {
         _node = _node->_next;
         return *this;
     }
 
-    _ListIterator<_Tp> operator++(int) noexcept 
+    _ListConstIterator<_Tp> operator++(int) noexcept 
     {
-        _ListIterator<_Tp> temp = *this;
+        _ListConstIterator<_Tp> temp = *this;
         _node = _node->_next;
         return temp;
     }
 
-    _ListIterator<_Tp>& operator--() noexcept 
+    _ListConstIterator<_Tp>& operator--() noexcept 
     {
         _node = _node->prev;
         return *this;
     }
 
-    _ListIterator<_Tp> operator--(int) noexcept 
+    _ListConstIterator<_Tp> operator--(int) noexcept 
     {
-        _ListIterator<_Tp> temp = *this;
+        _ListConstIterator<_Tp> temp = *this;
         _node = _node->_prev;
         return temp;
     }
 
-    friend bool operator== (const _ListIterator<_Tp>& lhs, const _ListIterator<_Tp>& rhs) noexcept 
+    friend bool operator== (const _ListConstIterator<_Tp>& lhs, const _ListConstIterator<_Tp>& rhs) noexcept 
     {
         return lhs._node == rhs._node;
     } 
 
-    friend bool operator!= (const _ListIterator<_Tp>& lhs, const _ListIterator<_Tp>& rhs) noexcept 
+    friend bool operator!= (const _ListConstIterator<_Tp>& lhs, const _ListConstIterator<_Tp>& rhs) noexcept 
     {
         return lhs._node != rhs._node;
     } 
 
-    detail::Node<_Tp>* _node;
+    const detail::Node<_Tp>* _node;
 };
-
-
 
 template <typename T>
 class DoublyLinkedList
@@ -190,50 +193,30 @@ public:
     using reverse_iterator = std::reverse_iterator<iterator>;
 
     DoublyLinkedList()
-        : _listPtr(nullptr)
-        , _nodeCount(0)
+        : _nodeCount(0)
     {}
 
     ~DoublyLinkedList()
     {
-        erase(begin(), end());;
+        erase(cbegin(), cend());
     }
 
     DoublyLinkedList(const DoublyLinkedList& rhs)
-        : _listPtr(nullptr) 
-        , _nodeCount(0)
+        : _nodeCount(0)
     {
-        _allocate_new_list(rhs); 
+        _fill_initialize(rhs.begin(), rhs.end());
     }
 
     DoublyLinkedList& operator= (const DoublyLinkedList& rhs)
     {
         if (*this == rhs) return *this;
 
-        _allocate_new_list(rhs);
+        _fill_initialize(rhs.begin(), rhs.end());
         return *this;
     }
 
-    DoublyLinkedList(DoublyLinkedList&& rhs) noexcept 
-        : _head(rhs._head)
-        , _tail(rhs._tail)
-    {
-        rhs._tail = nullptr;
-        rhs._head = nullptr;
-    }
-
-    DoublyLinkedList& operator= (DoublyLinkedList&& rhs) noexcept
-    {
-        if (_head != nullptr) {
-            _remove_all_element();
-        }
-
-        _head = rhs._head;
-        _tail = rhs._tail;
-        rhs._head = nullptr;
-        rhs._tail = nullptr;
-        return *this;
-    }
+    DoublyLinkedList(DoublyLinkedList&& rhs) noexcept = default;
+    DoublyLinkedList& operator= (DoublyLinkedList&& rhs) noexcept = default;
 
     // iterators
     iterator begin() noexcept { return iterator(_listPtr->_next); }
@@ -251,9 +234,7 @@ public:
 
     [[nodiscard]] bool empty() const noexcept
     {
-        if (_head == nullptr) return true;
-
-        return false;
+        return _listPtr == _listPtr->_next;
     }
 
     std::size_t size() const noexcept 
@@ -290,7 +271,7 @@ public:
 
     void push_front(value_type&& key) 
     {
-        _insert(begin(), std::move(key);)
+        _insert(begin(), std::move(key));
     }
 
     void push_back(const value_type& key) 
@@ -306,13 +287,13 @@ public:
     template <typename ...Args>
     void emplace_front(Args&& ...args) 
     {
-        (..., push_front(std::forward<Args>(args)))
+        (..., push_front(std::forward<Args>(args)));
     }
 
     template <typename ...Args>
     void emplace_back(Args&& ...args) 
     {
-        (..., push_back(std::forward<Args>(args)))
+        (..., push_back(std::forward<Args>(args)));
     }
 
     void pop_front() noexcept 
@@ -328,7 +309,7 @@ public:
     iterator erase(const_iterator position) noexcept 
     {
         iterator ret = iterator(position._node->_next);
-        _erase(position);
+        _erase(position._const_cast());
         return ret;
     }    
 
@@ -337,7 +318,7 @@ public:
         while (first != last) 
             first = erase(first);
 
-        return iterator(last._node);
+        return iterator(last._const_cast()._node);
     }
 
     void clear() noexcept 
@@ -356,12 +337,10 @@ public:
 
     void print() noexcept
     {
-        Node_t* temp = _head;
         std::cout << "-------------------------------------------\n";
-        while(temp != nullptr) {
-            std::cout << temp->_key << " ";
-            temp = temp->_next;
-        }
+        auto first = this->begin();
+        for(; first != end(); ++first)
+            std::cout << *first << " ";
         std::cout << "\n-------------------------------------------\n";
     }
 
@@ -378,7 +357,7 @@ private:
     void _erase(iterator position) 
     {
         position._node->unhook();
-        _delete_node(position._node)
+        _delete_node(position._node);
         _decrease_size(1);
     }
  
@@ -413,6 +392,12 @@ private:
     {
         _nodeCount = 0;
         _listPtr->init();
+    }
+
+    void _fill_initialize(iterator first, iterator last) 
+    {
+        for (; first != last; ++first)
+            emplace_back(*first);
     }
 
     Node_t* _listPtr;
