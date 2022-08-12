@@ -24,7 +24,7 @@ namespace detail
         void hook(Node* const position) noexcept 
         {
             this->_next = position;
-            this->prev = position->_prev;
+            this->_prev = position->_prev;
             position->_prev->_next = this;   
             position->_prev = this;
         } 
@@ -55,7 +55,8 @@ struct _ListIterator
     _ListIterator() noexcept { } 
 
     explicit _ListIterator(detail::Node<_Tp>* node) noexcept 
-    : _node(node) { }
+    : _node(node) 
+    {}
 
     reference operator*() const noexcept 
     {
@@ -120,8 +121,10 @@ struct _ListConstIterator
     _ListConstIterator() noexcept { }
 
     explicit _ListConstIterator(const detail::Node<_Tp>* node) noexcept
-    : _node(node) 
-    {}
+    : _node(node)
+    {
+        std::cout << "test\n";
+    }
 
     _ListConstIterator(const iterator& it) noexcept 
     : _node(it._node)
@@ -198,7 +201,7 @@ public:
 
     ~DoublyLinkedList()
     {
-        erase(cbegin(), cend());
+        erase(begin(), end());
     }
 
     DoublyLinkedList(const DoublyLinkedList& rhs)
@@ -308,7 +311,9 @@ public:
 
     iterator erase(const_iterator position) noexcept 
     {
-        iterator ret = iterator(position._node->_next);
+        if (false == empty()) return end();
+
+        iterator ret(position._const_cast()._node->_next);
         _erase(position._const_cast());
         return ret;
     }    
@@ -318,7 +323,7 @@ public:
         while (first != last) 
             first = erase(first);
 
-        return iterator(last._const_cast()._node);
+        return iterator();
     }
 
     void clear() noexcept 
