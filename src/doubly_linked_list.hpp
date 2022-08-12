@@ -197,6 +197,7 @@ public:
 
     DoublyLinkedList()
         : _nodeCount(0)
+        , _listPtr(new Node_t(0))
     {}
 
     ~DoublyLinkedList()
@@ -311,8 +312,6 @@ public:
 
     iterator erase(const_iterator position) noexcept 
     {
-        if (false == empty()) return end();
-
         iterator ret(position._const_cast()._node->_next);
         _erase(position._const_cast());
         return ret;
@@ -372,7 +371,7 @@ private:
         return node;
     }
 
-    Node_t* _create_node(const value_type&& key) 
+    Node_t* _create_node(value_type&& key) 
     {
         Node_t* node = new Node_t(std::move(key));
         return node;

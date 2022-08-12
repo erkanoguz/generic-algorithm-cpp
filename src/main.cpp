@@ -7,6 +7,12 @@ int main()
     exo::DoublyLinkedList<int> exoList;
     std::list<int> stdList;
 
-    /*push back*/
-    //ds.push_back(1);
+    /*push back-front*/
+    exoList.push_back(1);
+    exoList.push_back(10);
+    exoList.push_front(28);
+    exoList.push_front(255);
+    exoList.emplace_back(2005);
+    exoList.emplace_front(2115);
+    exoList.print();
 }
