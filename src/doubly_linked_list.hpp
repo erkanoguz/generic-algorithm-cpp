@@ -312,7 +312,7 @@ public:
 
     iterator erase(const_iterator position) noexcept 
     {
-        iterator ret(position._const_cast()._node->_next);
+            iterator ret(position._const_cast()._node->_next);
         _erase(position._const_cast());
         return ret;
     }    
