@@ -74,6 +74,11 @@ struct _ListIterator
         return *this;
     }
 
+    pointer operator->() const noexcept
+    { 
+        return &_node->_key; 
+    }
+    
     _ListIterator<_Tp> operator++(int) noexcept 
     {
         _ListIterator<_Tp> temp = *this;
@@ -194,6 +199,7 @@ public:
     using const_iterator = _ListConstIterator<T>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using reverse_iterator = std::reverse_iterator<iterator>;
+    using size_type = std::size_t;
 
     DoublyLinkedList()
         : _nodeCount(0)
@@ -207,15 +213,23 @@ public:
 
     DoublyLinkedList(const DoublyLinkedList& rhs)
         : _nodeCount(0)
+        , _listPtr(new Node_t(0))
     {
-        _fill_initialize(rhs.begin(), rhs.end());
+        _default_initialize(rhs.begin(), rhs.end());
+    }
+
+    DoublyLinkedList(size_type n, const value_type& value)
+        : _nodeCount(0)
+        , _listPtr(new Node_t(0))
+    {
+        _fill_initialize(n, value);
     }
 
     DoublyLinkedList& operator= (const DoublyLinkedList& rhs)
     {
         if (*this == rhs) return *this;
 
-        _fill_initialize(rhs.begin(), rhs.end());
+        _default_initialize(rhs.begin(), rhs.end());
         return *this;
     }
 
@@ -398,10 +412,17 @@ private:
         _listPtr->init();
     }
 
-    void _fill_initialize(iterator first, iterator last) 
+    void _default_initialize(iterator first, iterator last) 
     {
         for (; first != last; ++first)
             emplace_back(*first);
+    }
+
+    void _fill_initialize(size_type n, const value_type& value) 
+    {
+        for (size_type iter = 0; iter < n; ++iter) {
+            push_back(value);
+        }
     }
 
     Node_t* _listPtr;

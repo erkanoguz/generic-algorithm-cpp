@@ -1,6 +1,7 @@
 #include <iostream>
 #include "doubly_linked_list.hpp"
 #include <list>
+#include <string>
 
 int main()
 {
@@ -15,4 +16,13 @@ int main()
     exoList.emplace_back(2005);
     exoList.emplace_front(2115);
     exoList.print();
+    
+
+    /*Constructor with size and value*/
+    exo::DoublyLinkedList<int> exoList2(20, 10);
+    exoList2.print();
+
+    /*list wtih std::string*/
+    exo::DoublyLinkedList<std::string> exoList3(20, "test");
+
 }
