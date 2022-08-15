@@ -15,6 +15,11 @@ namespace detail
         Node<T>* _next;
         Node<T>* _prev;
 
+        Node()
+        {
+            this->init();
+        }
+
         Node(const T& key)
             : _key(key)
         { 
@@ -88,7 +93,7 @@ struct _ListIterator
 
     _ListIterator<_Tp>& operator--() noexcept 
     {
-        _node = _node->prev;
+        _node = _node->_prev;
         return *this;
     }
 
@@ -203,7 +208,7 @@ public:
 
     DoublyLinkedList()
         : _nodeCount(0)
-        , _listPtr(new Node_t(0))
+        , _listPtr(new Node_t)
     {}
 
     ~DoublyLinkedList()
@@ -213,14 +218,14 @@ public:
 
     DoublyLinkedList(const DoublyLinkedList& rhs)
         : _nodeCount(0)
-        , _listPtr(new Node_t(0))
+        , _listPtr(new Node_t)
     {
         _default_initialize(rhs.begin(), rhs.end());
     }
 
     DoublyLinkedList(size_type n, const value_type& value)
         : _nodeCount(0)
-        , _listPtr(new Node_t(0))
+        , _listPtr(new Node_t)
     {
         _fill_initialize(n, value);
     }
