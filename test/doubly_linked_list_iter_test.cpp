@@ -100,3 +100,17 @@ TEST_F(DoublyLinkedListIterTest, End)
     
     EXPECT_EQ(count, 20UL);
 }
+
+TEST_F(DoublyLinkedListIterTest, Advance) 
+{
+    exo::DoublyLinkedList<int> l{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}; 
+
+    auto incIter = l.begin();
+    std::advance(incIter, 3);
+
+    auto decIter = incIter;
+    std::advance(decIter, -2);
+
+    EXPECT_EQ(*incIter, 3);
+    EXPECT_EQ(*decIter, 1);
+}

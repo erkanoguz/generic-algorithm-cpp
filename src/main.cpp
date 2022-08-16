@@ -24,5 +24,4 @@ int main()
 
     /*list wtih std::string*/
     exo::DoublyLinkedList<std::string> exoList3;
-
 }

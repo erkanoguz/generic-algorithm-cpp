@@ -1,8 +1,8 @@
 #ifndef DOUBLY_LINKED_LIST_HPP
 #define DOUBLY_LINKED_LIST_HPP
 
-#include <list>
 #include <iostream>
+#include <initializer_list>
 
 #include "common_defs.h"
 
@@ -202,6 +202,15 @@ namespace exo
 
             _default_initialize(rhs.begin(), rhs.end());
             return *this;
+        }
+
+        DoublyLinkedList(std::initializer_list<T> l)
+            : _listPtr(new _Node) 
+        {
+            auto first = l.begin();
+            for (; first != l.end(); ++first) {
+                emplace_back(*first);
+            }
         }
 
         DoublyLinkedList(DoublyLinkedList&& rhs) NOEXCEPT = default;
