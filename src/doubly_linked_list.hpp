@@ -191,7 +191,7 @@ namespace exo
             , _listPtr(new _Node)
         { _default_initialize(rhs.begin(), rhs.end()); }
 
-        DoublyLinkedList(size_type n, const value_type& value)
+        explicit DoublyLinkedList(size_type n, const value_type& value)
             : _nodeCount(0)
             , _listPtr(new _Node)
         { _fill_initialize(n, value); }
