@@ -124,3 +124,12 @@ TEST_F(DoublyLinkedListIterTest, AccumulateInt)
 
     EXPECT_EQ(15, sum);
 }
+
+TEST_F(DoublyLinkedListIterTest, AccumulateIntDouble)
+{
+    exo::DoublyLinkedList l{0.0, 1.2, 2.2, 3.3, 4.4, 5.5};
+
+    double sum = std::accumulate(l.begin(), l.end(), 0.0);
+
+    EXPECT_EQ(16.6, sum);
+}
