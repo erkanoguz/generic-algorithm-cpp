@@ -2,6 +2,7 @@
 #include "../src/doubly_linked_list.hpp"
 
 #include <string>
+#include <numeric>
 
 class DoublyLinkedListIterTest : public ::testing::Test
 {
@@ -113,4 +114,13 @@ TEST_F(DoublyLinkedListIterTest, Advance)
 
     EXPECT_EQ(*incIter, 3);
     EXPECT_EQ(*decIter, 1);
+}
+
+TEST_F(DoublyLinkedListIterTest, AccumulateInt)
+{
+    exo::DoublyLinkedList<int> l{0, 1, 2, 3, 4, 5};
+
+    int sum = std::accumulate(l.begin(), l.end(), 0);
+
+    EXPECT_EQ(15, sum);
 }
