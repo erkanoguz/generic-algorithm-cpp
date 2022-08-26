@@ -3,6 +3,7 @@
 
 #include <string>
 #include <numeric>
+#include <iterator>
 
 class DoublyLinkedListIterTest : public ::testing::Test
 {
@@ -132,4 +133,32 @@ TEST_F(DoublyLinkedListIterTest, AccumulateIntDouble)
     double sum = std::accumulate(l.begin(), l.end(), 0.0);
 
     EXPECT_EQ(16.6, sum);
+}
+
+TEST_F(DoublyLinkedListIterTest, EmptyContainter)
+{
+    exo::DoublyLinkedList<std::string> l;
+
+    EXPECT_TRUE(l.begin() == l.end());
+    EXPECT_TRUE(l.cbegin() == l.cend());
+    EXPECT_TRUE(l.rbegin() == l.rend());
+    EXPECT_TRUE(l.crbegin() == l.crend());
+}
+
+TEST_F(DoublyLinkedListIterTest, Distance)
+{
+    exo::DoublyLinkedList l{3, 1, 5, 6, 7 ,8};
+
+    auto numOfElem = std::distance(l.begin(), l.end());
+
+    EXPECT_EQ(numOfElem, 6);
+}
+
+TEST_F(DoublyLinkedListIterTest, ReverseDistance)
+{
+    exo::DoublyLinkedList l{3, 1, 5, 6, 7 ,8};
+
+    auto numOfElem = std::distance(l.end(), l.begin());
+
+    EXPECT_EQ(numOfElem, 1);
 }
