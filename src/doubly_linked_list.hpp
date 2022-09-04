@@ -116,7 +116,7 @@ namespace exo
 
         explicit _ListConstIterator(const detail::Node<_Tp>* node) NOEXCEPT
         : _node(node)
-        { }
+        {}
 
         _ListConstIterator(const iterator& it) NOEXCEPT 
         : _node(it._node)
@@ -126,7 +126,7 @@ namespace exo
         { return iterator(const_cast<detail::Node<_Tp>*>(_node)); }
 
         reference operator*() const NOEXCEPT 
-        { return _node->_key; }
+        { return const_cast<detail::Node<_Tp>*>(_node)->_key; }
 
         pointer operator&() const NOEXCEPT 
         { return &_node->key; }
@@ -206,6 +206,7 @@ namespace exo
 
         DoublyLinkedList(std::initializer_list<T> l)
             : _listPtr(new _Node) 
+            , _nodeCount{0}
         {
             auto first = l.begin();
             for (; first != l.end(); ++first) {
@@ -383,10 +384,12 @@ namespace exo
             _listPtr->init();
         }
 
-        void _default_initialize(iterator first, iterator last) 
+        template <typename Iterator>
+        void _default_initialize(Iterator first, Iterator last) 
         {
-            for (; first != last; ++first)
+            for (; first != last; ++first) {
                 emplace_back(*first);
+            }
         }
 
         void _fill_initialize(size_type n, const value_type& value) 
@@ -399,7 +402,7 @@ namespace exo
         _Node* _listPtr;
         std::size_t _nodeCount;
     };
-} // namepscae exo
+} // namespace exo
 
 
 
